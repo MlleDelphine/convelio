@@ -16,8 +16,14 @@ class TemplateManager
         }
 
         $replaced = clone($tpl);
-        $replaced->subject = $this->computeTextNew($replaced->subject, $data);
-        $replaced->content = $this->computeTextNew($replaced->content, $data);
+        $replaced->subject = $this->computeText($replaced->subject, $data);
+        $replaced->content = $this->computeText($replaced->content, $data);
+        /*
+         * New approach
+         * $replaced->subject = $this->computeTextNew($replaced->subject, $data);
+         * $replaced->content = $this->computeTextNew($replaced->content, $data);
+         */
+
 
         return $replaced;
     }
@@ -90,9 +96,12 @@ class TemplateManager
      */
     private function computeTextNew($text, array $data) {
 
-        // placeholders are [objectName:propertyToDisplay]
+        // placeholders are [objectName:propertyNameToDisplay]
         $text = preg_replace_callback('/\[([a-zA-Z]+)\:([a-zA-Z]+)\]/',
             function ($matches) use ($data) {
+                // $matches[0] : the full placeholder key [objectName:propertyNameToDisplay]
+                // $matches[1] : the objectName
+                // $matches[2] : the propertyName to display
                 if( array_key_exists( $matches[1], $data) ) {
                     return $this->getPropertyIfExists($data[$matches[1]], $matches[2]);
                 } else {
