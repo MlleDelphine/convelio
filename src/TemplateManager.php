@@ -16,8 +16,8 @@ class TemplateManager
         }
 
         $replaced = clone($tpl);
-        $replaced->subject = $this->computeText($replaced->subject, $data);
-        $replaced->content = $this->computeText($replaced->content, $data);
+        $replaced->subject = $this->computeTextNew($replaced->subject, $data);
+        $replaced->content = $this->computeTextNew($replaced->content, $data);
 
         return $replaced;
     }
@@ -27,13 +27,16 @@ class TemplateManager
      * @param array $data
      * @return string $text
      *
-     * Replace all placeholders with true values in text
+     * Replace all placeholders with true values in text for quote
      */
     private function computeText($text, array $data)
     {
         // If a valid and existing quote is passed
         if ( isset($data['quote']) and $data['quote'] instanceof Quote )
         {
+            /**
+             * @var Quote $quote
+             */
             $quote = $data['quote'];
             $usefulObject = SiteRepository::getInstance()->getById($quote->siteId);
             $destinationOfQuote = DestinationRepository::getInstance()->getById($quote->destinationId);
@@ -42,14 +45,14 @@ class TemplateManager
             if (strpos($text, '[quote:summary_html]') !== false) {
                 $text = str_replace(
                     '[quote:summary_html]',
-                    Quote::renderHtml($quote),
+                    $quote->renderHtml(),
                     $text
                 );
             }
             if (strpos($text, '[quote:summary]') !== false) {
                 $text = str_replace(
                     '[quote:summary]',
-                    Quote::renderText($quote),
+                    $quote->renderText(),
                     $text
                 );
             }
@@ -70,26 +73,55 @@ class TemplateManager
          * USER
          * [user:*]
          */
-        $_user  = (isset($data['user'])  and ($data['user']  instanceof User)) ? $data['user']  : $this->APPLICATION_CONTEXT->getCurrentUser();
-        if($_user) {
-            (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
-        }
+        $_user = (isset($data['user'])  and ($data['user']  instanceof User)) ? $data['user']  : $this->APPLICATION_CONTEXT->getCurrentUser();
+
+        (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($_user->firstname)), $text);
 
         return $text;
     }
+
+
+    /**
+     * @param $text
+     * @param array $data
+     * @return string $text
+     *
+     * Replace all placeholders with true values in text for quote
+     */
+    private function computeTextNew($text, array $data) {
+
+        // placeholders are [objectName:propertyToDisplay]
+        $text = preg_replace_callback('/\[([a-zA-Z]+)\:([a-zA-Z]+)\]/',
+            function ($matches) use ($data) {
+                if( array_key_exists( $matches[1], $data) ) {
+                    return $this->getPropertyIfExists($data[$matches[1]], $matches[2]);
+                } else {
+                    return "";
+                }
+            }, $text);
+
+        return $text;
+    }
+
+    /**
+     * @param ObjectDisplay $objectDisplay
+     * @param $property
+     * @return mixed
+     *
+     * Call method or property from object according to sntax [object:properyName] in template
+     */
+    private function getPropertyIfExists( ObjectDisplay $objectDisplay, $property ){
+        try {
+            if ( is_callable( [$objectDisplay, $property]) ) {
+                return $objectDisplay->{$property};
+            }
+            elseif ( is_callable( [ $objectDisplay, "get" . ucfirst($property) ] ) ) {
+
+                $methodCalled = "get" . ucfirst($property);
+                return $objectDisplay->{$methodCalled}();
+            }
+        }  catch (Exception $e) {
+            echo "Méthode $property : does not exist \n";
+        }
+    }
 }
-
-
-
-
-/**
- * $variables = array("first_name"=>"John","last_name"=>"Smith","status"=>"won");
-$string = 'Dear {FIRST_NAME} {LAST_NAME}, we wanted to tell you that you {STATUS} the competition.';
-
-foreach($variables as $key => $value){
-$string = str_replace('{'.strtoupper($key).'}', $value, $string);
-}
-
-echo $string;
- */
-

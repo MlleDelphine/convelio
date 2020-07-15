@@ -19,11 +19,11 @@ $faker = \Faker\Factory::create();
 
 $template = new Template(
     1,
-    'Votre livraison à [quote:destination_name].',
+    'Votre livraison à [destination:countryName].',
     "
-Bonjour [user:first_name],
+Bonjour [user:firstname],
 
-Merci de nous avoir contactés pour votre livraison à [quote:destination_name].
+Merci de nous avoir contactés pour votre livraison à [destination:countryName].
 
 Bien cordialement,
 
@@ -36,7 +36,9 @@ if( isset($quote)) {
     $message = $templateManager->getTemplateComputed(
         $template,
         [
-            'quote' => $quote
+            'quote' => $quote,
+            'destination' => DestinationRepository::getInstance()->getById($quote->getDestinationId()),
+            'user' => ApplicationContext::getInstance()->getCurrentUser()
         ]
     );
 
@@ -45,3 +47,7 @@ if( isset($quote)) {
 else {
     echo "Element non trouvé";
 }
+
+
+
+
