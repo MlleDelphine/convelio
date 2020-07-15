@@ -1,6 +1,6 @@
 <?php
 
-class Destination
+class Destination implements ObjectDisplay
 {
     public $id;
     public $countryName;
@@ -14,5 +14,15 @@ class Destination
         $this->countryName = $countryName;
         $this->conjunction = $conjunction;
         $this->computerName = $computerName;
+    }
+
+    public function renderHtml()
+    {
+        return '<p>' . $this->id . '</p>';
+    }
+
+    public function renderText()
+    {
+        return $this->id;
     }
 }

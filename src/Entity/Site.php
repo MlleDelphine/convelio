@@ -1,6 +1,6 @@
 <?php
 
-class Site
+class Site implements ObjectDisplay
 {
     public $id;
     public $url;
@@ -9,5 +9,15 @@ class Site
     {
         $this->id = $id;
         $this->url = $url;
+    }
+
+    public function renderHtml()
+    {
+        return '<p>' . $this->id . '</p>';
+    }
+
+    public function renderText()
+    {
+        return $this->id;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-class User
+class User implements ObjectDisplay
 {
     public $id;
     public $firstname;
@@ -13,5 +13,15 @@ class User
         $this->firstname = $firstname;
         $this->lastname = $lastname;
         $this->email = $email;
+    }
+
+    public function renderHtml()
+    {
+        return "<p> $this->firstname $this->lastname </p>";
+    }
+
+    public function renderText()
+    {
+        return  "$this->firstname $this->lastname";
     }
 }
