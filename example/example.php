@@ -19,23 +19,29 @@ $faker = \Faker\Factory::create();
 
 $template = new Template(
     1,
-    'Votre livraison à [quote:destination_name]',
+    'Votre livraison à [quote:destination_name].',
     "
 Bonjour [user:first_name],
 
-Merci de nous avoir contacté pour votre livraison à [quote:destination_name].
+Merci de nous avoir contactés pour votre livraison à [quote:destination_name].
 
 Bien cordialement,
 
 L'équipe Convelio.com
 ");
 $templateManager = new TemplateManager();
+$quote = QuoteRepository::getInstance()->getById($faker->randomNumber());
 
-$message = $templateManager->getTemplateComputed(
-    $template,
-    [
-        'quote' => new Quote($faker->randomNumber(), $faker->randomNumber(), $faker->randomNumber(), $faker->date())
-    ]
-);
+if( isset($quote)) {
+    $message = $templateManager->getTemplateComputed(
+        $template,
+        [
+            'quote' => $quote
+        ]
+    );
 
-echo $message->subject . "\n" . $message->content;
+    echo $message->subject . "\n" . $message->content;
+}
+else {
+    echo "Element non trouvé";
+}
