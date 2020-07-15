@@ -5,6 +5,22 @@ class Site implements ObjectDisplay
     public $id;
     public $url;
 
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
     public function __construct($id, $url)
     {
         $this->id = $id;
@@ -20,4 +36,6 @@ class Site implements ObjectDisplay
     {
         return $this->id;
     }
+
+
 }

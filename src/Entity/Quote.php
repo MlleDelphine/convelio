@@ -7,6 +7,38 @@ class Quote implements ObjectDisplay
     public $destinationId;
     public $dateQuoted;
 
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSiteId()
+    {
+        return $this->siteId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDestinationId()
+    {
+        return $this->destinationId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDateQuoted()
+    {
+        return $this->dateQuoted;
+    }
+
     public function __construct($id, $siteId, $destinationId, $dateQuoted)
     {
         $this->id = $id;
